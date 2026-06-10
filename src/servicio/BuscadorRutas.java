@@ -24,6 +24,10 @@ public class BuscadorRutas {
      * Retorna -1 si no existe camino entre ellos.
      */
     public int gradoSeparacion(String origen, String destino) {
+        if (origen == null || destino == null)
+            throw new IllegalArgumentException("Los IDs de origen y destino no pueden ser nulos.");
+        if (origen.isBlank() || destino.isBlank())
+            throw new IllegalArgumentException("Los IDs de origen y destino no pueden ser vacíos.");
         if (origen.equals(destino)) return 0;
 
         if (!grafo.existeUsuario(origen) || !grafo.existeUsuario(destino))

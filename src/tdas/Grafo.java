@@ -57,11 +57,6 @@ public class Grafo {
         return adyacencia.containsKey(id);
     }
 
-    /** Devuelve una vista del mapa completo (para BFS externo). */
-    public HashMap<String, Set<String>> getAdyacencia() {
-        return adyacencia;
-    }
-
     private void validarId(String id) {
         if (id == null || id.isBlank())
             throw new IllegalArgumentException("El ID no puede ser vacío.");

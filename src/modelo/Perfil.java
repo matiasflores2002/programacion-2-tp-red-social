@@ -6,6 +6,12 @@ public class Perfil {
     private String titular; // ej: "Desarrollador Java"
 
     public Perfil(String nombre, String email, String titular) {
+        if (nombre == null || nombre.isBlank())
+            throw new IllegalArgumentException("El nombre no puede ser vacío.");
+        if (email == null || email.isBlank())
+            throw new IllegalArgumentException("El email no puede ser vacío.");
+        if (titular == null || titular.isBlank())
+            throw new IllegalArgumentException("El titular no puede ser vacío.");
         this.nombre = nombre;
         this.email = email;
         this.titular = titular;
