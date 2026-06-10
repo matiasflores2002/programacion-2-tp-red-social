@@ -3,8 +3,11 @@ package main;
 import modelo.Perfil;
 import modelo.Usuario;
 import servicio.BuscadorRutas;
+import servicio.Recomendador;
 import servicio.RedSocial;
 import tdas.Grafo;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -79,5 +82,46 @@ public class Main {
             System.out.println("u1 -> u4: sin camino entre ellos");
         else
             System.out.println("u1 -> u4: grado " + sinCamino);
+
+        System.out.println();
+        System.out.println("=== Módulo de recomendaciones ===");
+
+        // Red de ejemplo:
+        //  u5 -- u1 -- u2 -- u3
+        //         |         /
+        //        u6 -------
+        // u3 y u6 tienen 2 contactos en común con u1 (a través de u2 y u6/u2)
+        Grafo grafoRec = new Grafo();
+        for (String id : new String[]{"u1","u2","u3","u5","u6"})
+            grafoRec.agregarUsuario(id);
+
+        grafoRec.conectar("u1", "u2");
+        grafoRec.conectar("u1", "u5");
+        grafoRec.conectar("u1", "u6");
+        grafoRec.conectar("u2", "u3");
+        grafoRec.conectar("u2", "u6"); // u6 tiene 2 comunes con u3: u1 y u2
+        grafoRec.conectar("u3", "u6");
+
+        Recomendador recomendador = new Recomendador(grafoRec);
+
+        // Recomendaciones para u1 (no debe aparecer u2, u5, u6 que ya son contactos)
+        System.out.println("Recomendaciones para u1:");
+        List<Map.Entry<String, Integer>> recsU1 = recomendador.recomendar("u1");
+        if (recsU1.isEmpty()) {
+            System.out.println("  Sin recomendaciones.");
+        } else {
+            for (Map.Entry<String, Integer> rec : recsU1)
+                System.out.println("  -> " + rec.getKey() + " (" + rec.getValue() + " contacto/s en común)");
+        }
+
+        // Recomendaciones para u3
+        System.out.println("Recomendaciones para u3:");
+        List<Map.Entry<String, Integer>> recsU3 = recomendador.recomendar("u3");
+        if (recsU3.isEmpty()) {
+            System.out.println("  Sin recomendaciones.");
+        } else {
+            for (Map.Entry<String, Integer> rec : recsU3)
+                System.out.println("  -> " + rec.getKey() + " (" + rec.getValue() + " contacto/s en común)");
+        }
     }
 }
