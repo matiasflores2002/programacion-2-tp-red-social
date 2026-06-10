@@ -2,7 +2,9 @@ package main;
 
 import modelo.Perfil;
 import modelo.Usuario;
+import modelo.NodoHabilidad;
 import modelo.Postulacion;
+import servicio.ArbolHabilidades;
 import servicio.BuscadorRutas;
 import servicio.GestorPostulaciones;
 import servicio.Recomendador;
@@ -178,5 +180,39 @@ public class Main {
         // Intentar deshacer sin historial
         boolean sinHistorial = ana.deshacerCambio();
         System.out.println("Deshacer sin historial: " + sinHistorial + " (no hay más cambios)");
+
+        System.out.println();
+        System.out.println("=== Módulo de árbol de habilidades ===");
+
+        ArbolHabilidades arbol = new ArbolHabilidades("Tecnología");
+        arbol.agregar("Tecnología", "Desarrollo");
+        arbol.agregar("Tecnología", "Infraestructura");
+        arbol.agregar("Desarrollo", "Java");
+        arbol.agregar("Desarrollo", "Python");
+        arbol.agregar("Infraestructura", "Redes");
+
+        arbol.mostrarJerarquia();
+
+        System.out.println();
+
+        // Buscar habilidad existente
+        NodoHabilidad encontrado = arbol.buscar("Java");
+        System.out.println("Búsqueda 'Java':       " + (encontrado != null ? "encontrado" : "no encontrado"));
+
+        NodoHabilidad noExiste = arbol.buscar("Diseño");
+        System.out.println("Búsqueda 'Diseño':     " + (noExiste != null ? "encontrado" : "no encontrado"));
+
+        // Agregar bajo nodo existente en profundidad
+        arbol.agregar("Java", "Spring Boot");
+        System.out.println("Hijos de 'Java' tras agregar Spring Boot: "
+            + arbol.buscar("Java").getHijos().stream()
+                   .map(NodoHabilidad::getNombre).toList());
+
+        // Intentar agregar bajo nodo inexistente
+        try {
+            arbol.agregar("Inexistente", "Algo");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error esperado: " + e.getMessage());
+        }
     }
 }
