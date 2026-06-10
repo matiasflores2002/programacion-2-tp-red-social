@@ -1,32 +1,32 @@
 package main;
 
-import modelo.Perfil;
-import modelo.Usuario;
 import modelo.NodoHabilidad;
+import modelo.Perfil;
 import modelo.Postulacion;
+import modelo.Usuario;
 import servicio.ArbolHabilidades;
-import servicio.BuscadorRutas;
 import servicio.GestorPostulaciones;
 import servicio.Recomendador;
 import servicio.RedSocial;
-import tdas.Grafo;
+
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        // ── Módulo de usuarios ────────────────────────────────────────────────
         RedSocial red = new RedSocial();
 
-        // Registrar usuarios
         red.registrarUsuario(new Usuario("u1", new Perfil("Ana García",   "ana@mail.com",   "Desarrolladora Backend")));
         red.registrarUsuario(new Usuario("u2", new Perfil("Bruno López",  "bruno@mail.com", "Diseñador UX")));
         red.registrarUsuario(new Usuario("u3", new Perfil("Carla Méndez", "carla@mail.com", "Data Scientist")));
+        red.registrarUsuario(new Usuario("u4", new Perfil("Diego Ruiz",   "diego@mail.com", "DevOps Engineer")));
 
         System.out.println("Usuarios registrados: " + red.cantidadUsuarios());
         System.out.println();
 
-        // Buscar por ID existente
         String[] buscar = {"u1", "u3", "u99"};
         for (String id : buscar) {
             Usuario u = red.buscarPorId(id);
@@ -38,77 +38,66 @@ public class Main {
 
         System.out.println();
 
-        // Validar ID duplicado
+        // ID duplicado
         try {
             red.registrarUsuario(new Usuario("u1", new Perfil("Otro", "otro@mail.com", "QA")));
         } catch (IllegalStateException e) {
             System.out.println("Error esperado: " + e.getMessage());
         }
 
+        // ── Módulo de conexiones ──────────────────────────────────────────────
         System.out.println();
         System.out.println("=== Módulo de conexiones ===");
 
-        // Agregar los mismos usuarios al grafo
-        Grafo grafo = new Grafo();
-        grafo.agregarUsuario("u1");
-        grafo.agregarUsuario("u2");
-        grafo.agregarUsuario("u3");
-        grafo.agregarUsuario("u4"); // sin conexiones
+        red.conectar("u1", "u2");
+        red.conectar("u2", "u3");
 
-        // Conectar usuarios
-        grafo.conectar("u1", "u2");
-        grafo.conectar("u2", "u3");
+        System.out.println("Contactos de u1: " + red.obtenerContactos("u1"));
+        System.out.println("Contactos de u2: " + red.obtenerContactos("u2"));
 
-        // Contactos directos
-        System.out.println("Contactos de u1: " + grafo.obtenerContactos("u1"));
-        System.out.println("Contactos de u2: " + grafo.obtenerContactos("u2"));
+        // Conexión duplicada (no lanza error, Set la ignora)
+        red.conectar("u1", "u2");
+        System.out.println("Contactos de u1 tras duplicado: " + red.obtenerContactos("u1"));
 
-        // Evitar conexión duplicada (no lanza error, simplemente no la agrega)
-        grafo.conectar("u1", "u2");
-        System.out.println("Contactos de u1 tras duplicado: " + grafo.obtenerContactos("u1"));
-
-        // Evitar auto-conexión
+        // Auto-conexión
         try {
-            grafo.conectar("u1", "u1");
+            red.conectar("u1", "u1");
         } catch (IllegalArgumentException e) {
             System.out.println("Error esperado: " + e.getMessage());
         }
 
+        // Grado de separación
         System.out.println();
-
-        // Grado de separación con BFS
-        BuscadorRutas buscador = new BuscadorRutas(grafo);
-        System.out.println("u1 -> u2: grado " + buscador.gradoSeparacion("u1", "u2")); // 1
-        System.out.println("u1 -> u3: grado " + buscador.gradoSeparacion("u1", "u3")); // 2
-        System.out.println("u1 -> u1: grado " + buscador.gradoSeparacion("u1", "u1")); // 0
-        int sinCamino = buscador.gradoSeparacion("u1", "u4");
+        System.out.println("u1 -> u2: grado " + red.gradoSeparacion("u1", "u2")); // 1
+        System.out.println("u1 -> u3: grado " + red.gradoSeparacion("u1", "u3")); // 2
+        System.out.println("u1 -> u1: grado " + red.gradoSeparacion("u1", "u1")); // 0
+        int sinCamino = red.gradoSeparacion("u1", "u4");
         if (sinCamino == -1)
             System.out.println("u1 -> u4: sin camino entre ellos");
         else
             System.out.println("u1 -> u4: grado " + sinCamino);
 
+        // ── Módulo de recomendaciones ─────────────────────────────────────────
         System.out.println();
         System.out.println("=== Módulo de recomendaciones ===");
 
-        // Red de ejemplo:
+        // Red de ejemplo dedicada para el recomendador
         //  u5 -- u1 -- u2 -- u3
         //         |         /
         //        u6 -------
-        // u3 y u6 tienen 2 contactos en común con u1 (a través de u2 y u6/u2)
-        Grafo grafoRec = new Grafo();
+        RedSocial redRec = new RedSocial();
         for (String id : new String[]{"u1","u2","u3","u5","u6"})
-            grafoRec.agregarUsuario(id);
+            redRec.registrarUsuario(new Usuario(id, new Perfil("Usuario " + id, id + "@mail.com", "Rol")));
 
-        grafoRec.conectar("u1", "u2");
-        grafoRec.conectar("u1", "u5");
-        grafoRec.conectar("u1", "u6");
-        grafoRec.conectar("u2", "u3");
-        grafoRec.conectar("u2", "u6"); // u6 tiene 2 comunes con u3: u1 y u2
-        grafoRec.conectar("u3", "u6");
+        redRec.conectar("u1", "u2");
+        redRec.conectar("u1", "u5");
+        redRec.conectar("u1", "u6");
+        redRec.conectar("u2", "u3");
+        redRec.conectar("u2", "u6");
+        redRec.conectar("u3", "u6");
 
-        Recomendador recomendador = new Recomendador(grafoRec);
+        Recomendador recomendador = new Recomendador(redRec.getGrafo());
 
-        // Recomendaciones para u1 (no debe aparecer u2, u5, u6 que ya son contactos)
         System.out.println("Recomendaciones para u1:");
         List<Map.Entry<String, Integer>> recsU1 = recomendador.recomendar("u1");
         if (recsU1.isEmpty()) {
@@ -118,7 +107,6 @@ public class Main {
                 System.out.println("  -> " + rec.getKey() + " (" + rec.getValue() + " contacto/s en común)");
         }
 
-        // Recomendaciones para u3
         System.out.println("Recomendaciones para u3:");
         List<Map.Entry<String, Integer>> recsU3 = recomendador.recomendar("u3");
         if (recsU3.isEmpty()) {
@@ -128,59 +116,56 @@ public class Main {
                 System.out.println("  -> " + rec.getKey() + " (" + rec.getValue() + " contacto/s en común)");
         }
 
+        // ── Módulo de postulaciones (FIFO) ────────────────────────────────────
         System.out.println();
         System.out.println("=== Módulo de postulaciones (FIFO) ===");
 
         GestorPostulaciones gestor = new GestorPostulaciones();
-
-        // Encolar postulaciones en orden de llegada
         gestor.encolar(new Postulacion("u1", "Desarrollador Java"));
         gestor.encolar(new Postulacion("u2", "Diseñador UX Senior"));
         gestor.encolar(new Postulacion("u3", "Data Analyst"));
 
-        System.out.println();
-        gestor.mostrarPendientes();
+        System.out.println("Pendientes (" + gestor.cantidadPendientes() + "):");
+        for (Postulacion p : gestor.obtenerPendientes())
+            System.out.println("  " + p);
 
         System.out.println();
-        // Procesar en orden FIFO
-        gestor.procesarSiguiente(); // u1 primero
-        gestor.procesarSiguiente(); // u2 segundo
-        gestor.mostrarPendientes(); // solo queda u3
+        Postulacion procesada = gestor.procesarSiguiente();
+        System.out.println("Procesada: " + procesada);
+        procesada = gestor.procesarSiguiente();
+        System.out.println("Procesada: " + procesada);
+
+        System.out.println("Pendientes (" + gestor.cantidadPendientes() + "):");
+        for (Postulacion p : gestor.obtenerPendientes())
+            System.out.println("  " + p);
 
         System.out.println();
-        gestor.procesarSiguiente(); // u3
-        gestor.procesarSiguiente(); // cola vacía
+        System.out.println("Procesada: " + gestor.procesarSiguiente());
+        Postulacion vacia = gestor.procesarSiguiente();
+        System.out.println("Cola vacía devuelve: " + vacia);
 
+        // ── Módulo de historial de perfil (LIFO) ──────────────────────────────
         System.out.println();
         System.out.println("=== Módulo de historial de perfil (LIFO) ===");
 
         Usuario ana = new Usuario("u1", new Perfil("Ana García", "ana@mail.com", "Desarrolladora Backend"));
         System.out.println("Perfil inicial:     " + ana.getPerfil());
 
-        // Primer cambio
         ana.actualizarPerfil(new Perfil("Ana García", "ana@mail.com", "Tech Lead"));
         System.out.println("Tras 1er cambio:    " + ana.getPerfil());
 
-        // Segundo cambio
         ana.actualizarPerfil(new Perfil("Ana García", "ana.garcia@empresa.com", "CTO"));
         System.out.println("Tras 2do cambio:    " + ana.getPerfil());
         System.out.println("Cambios apilados:   " + ana.cantidadCambios());
 
         System.out.println();
-
-        // Deshacer segundo cambio
-        boolean deshizo = ana.deshacerCambio();
-        System.out.println("Deshacer exitoso:   " + deshizo);
+        System.out.println("Deshacer exitoso:   " + ana.deshacerCambio());
         System.out.println("Perfil restaurado:  " + ana.getPerfil());
-
-        // Deshacer primer cambio
         ana.deshacerCambio();
         System.out.println("Perfil restaurado:  " + ana.getPerfil());
+        System.out.println("Deshacer sin historial: " + ana.deshacerCambio() + " (no hay más cambios)");
 
-        // Intentar deshacer sin historial
-        boolean sinHistorial = ana.deshacerCambio();
-        System.out.println("Deshacer sin historial: " + sinHistorial + " (no hay más cambios)");
-
+        // ── Módulo de árbol de habilidades ────────────────────────────────────
         System.out.println();
         System.out.println("=== Módulo de árbol de habilidades ===");
 
@@ -192,23 +177,16 @@ public class Main {
         arbol.agregar("Infraestructura", "Redes");
 
         arbol.mostrarJerarquia();
-
         System.out.println();
 
-        // Buscar habilidad existente
         NodoHabilidad encontrado = arbol.buscar("Java");
-        System.out.println("Búsqueda 'Java':       " + (encontrado != null ? "encontrado" : "no encontrado"));
+        System.out.println("Búsqueda 'Java':   " + (encontrado != null ? "encontrado" : "no encontrado"));
+        System.out.println("Búsqueda 'Diseño': " + (arbol.buscar("Diseño") != null ? "encontrado" : "no encontrado"));
 
-        NodoHabilidad noExiste = arbol.buscar("Diseño");
-        System.out.println("Búsqueda 'Diseño':     " + (noExiste != null ? "encontrado" : "no encontrado"));
-
-        // Agregar bajo nodo existente en profundidad
         arbol.agregar("Java", "Spring Boot");
         System.out.println("Hijos de 'Java' tras agregar Spring Boot: "
-            + arbol.buscar("Java").getHijos().stream()
-                   .map(NodoHabilidad::getNombre).toList());
+            + arbol.buscar("Java").getHijos().stream().map(NodoHabilidad::getNombre).toList());
 
-        // Intentar agregar bajo nodo inexistente
         try {
             arbol.agregar("Inexistente", "Algo");
         } catch (IllegalArgumentException e) {

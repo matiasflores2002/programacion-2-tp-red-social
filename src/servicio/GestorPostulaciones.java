@@ -2,9 +2,12 @@ package servicio;
 
 import modelo.Postulacion;
 import tdas.Cola;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gestiona postulaciones en orden de llegada (FIFO).
+ * No imprime: devuelve datos para que quien llame decida cómo mostrarlos.
  */
 public class GestorPostulaciones {
 
@@ -14,31 +17,34 @@ public class GestorPostulaciones {
         if (postulacion == null)
             throw new IllegalArgumentException("La postulación no puede ser nula.");
         cola.encolar(postulacion);
-        System.out.println("Encolada: " + postulacion);
     }
 
     /**
-     * Procesa (extrae) la siguiente postulación en orden de llegada.
+     * Extrae y devuelve la siguiente postulación en orden FIFO.
      * Devuelve null si no hay postulaciones pendientes.
      */
     public Postulacion procesarSiguiente() {
-        if (cola.estaVacia()) {
-            System.out.println("No hay postulaciones pendientes.");
-            return null;
-        }
-        Postulacion procesada = cola.desencolar();
-        System.out.println("Procesada: " + procesada);
-        return procesada;
+        if (cola.estaVacia()) return null;
+        return cola.desencolar();
     }
 
-    public void mostrarPendientes() {
-        if (cola.estaVacia()) {
-            System.out.println("No hay postulaciones pendientes.");
-            return;
+    /**
+     * Devuelve una copia de las postulaciones pendientes en orden de llegada.
+     */
+    public List<Postulacion> obtenerPendientes() {
+        List<Postulacion> resultado = new ArrayList<>();
+        // Usamos una cola auxiliar para no destruir la original
+        Cola<Postulacion> auxiliar = new Cola<>();
+        while (!cola.estaVacia()) {
+            Postulacion p = cola.desencolar();
+            resultado.add(p);
+            auxiliar.encolar(p);
         }
-        System.out.println("Postulaciones pendientes (" + cola.tamanio() + "): " + cola);
+        while (!auxiliar.estaVacia())
+            cola.encolar(auxiliar.desencolar());
+        return resultado;
     }
 
-    public boolean hayPendientes() { return !cola.estaVacia(); }
-    public int cantidadPendientes() { return cola.tamanio(); }
+    public boolean hayPendientes()   { return !cola.estaVacia(); }
+    public int cantidadPendientes()  { return cola.tamanio(); }
 }
