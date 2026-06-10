@@ -2,7 +2,9 @@ package main;
 
 import modelo.Perfil;
 import modelo.Usuario;
+import modelo.Postulacion;
 import servicio.BuscadorRutas;
+import servicio.GestorPostulaciones;
 import servicio.Recomendador;
 import servicio.RedSocial;
 import tdas.Grafo;
@@ -123,5 +125,28 @@ public class Main {
             for (Map.Entry<String, Integer> rec : recsU3)
                 System.out.println("  -> " + rec.getKey() + " (" + rec.getValue() + " contacto/s en común)");
         }
+
+        System.out.println();
+        System.out.println("=== Módulo de postulaciones (FIFO) ===");
+
+        GestorPostulaciones gestor = new GestorPostulaciones();
+
+        // Encolar postulaciones en orden de llegada
+        gestor.encolar(new Postulacion("u1", "Desarrollador Java"));
+        gestor.encolar(new Postulacion("u2", "Diseñador UX Senior"));
+        gestor.encolar(new Postulacion("u3", "Data Analyst"));
+
+        System.out.println();
+        gestor.mostrarPendientes();
+
+        System.out.println();
+        // Procesar en orden FIFO
+        gestor.procesarSiguiente(); // u1 primero
+        gestor.procesarSiguiente(); // u2 segundo
+        gestor.mostrarPendientes(); // solo queda u3
+
+        System.out.println();
+        gestor.procesarSiguiente(); // u3
+        gestor.procesarSiguiente(); // cola vacía
     }
 }
