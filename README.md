@@ -32,7 +32,7 @@ Cada funcionalidad fue implementada eligiendo la estructura de datos más adecua
 src/
   modelo/
     Usuario.java          — entidad usuario con historial de perfil
-    Perfil.java           — datos del perfil (nombre, email, titular)
+    Perfil.java           — datos del perfil (nombre, email, cargo)
     Postulacion.java      — datos de una postulación laboral
     NodoHabilidad.java    — nodo del árbol de habilidades
   tdas/
@@ -72,7 +72,7 @@ java -cp out main.Main
 
 ## Funcionalidades implementadas
 
-- Registrar usuarios con perfil (nombre, email, titular)
+- Registrar usuarios con perfil (nombre, email, cargo)
 - Buscar usuarios por ID en tiempo O(1)
 - Validar IDs duplicados al registrar
 - Conectar usuarios en un grafo no dirigido

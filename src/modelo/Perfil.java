@@ -3,30 +3,30 @@ package modelo;
 public class Perfil {
     private String nombre;
     private String email;
-    private String titular; // ej: "Desarrollador Java"
+    private String cargo; // ej: "Desarrollador Java"
 
-    public Perfil(String nombre, String email, String titular) {
+    public Perfil(String nombre, String email, String cargo) {
         if (nombre == null || nombre.isBlank())
             throw new IllegalArgumentException("El nombre no puede ser vacío.");
         if (email == null || email.isBlank())
             throw new IllegalArgumentException("El email no puede ser vacío.");
-        if (titular == null || titular.isBlank())
-            throw new IllegalArgumentException("El titular no puede ser vacío.");
+        if (cargo == null || cargo.isBlank())
+            throw new IllegalArgumentException("El cargo no puede ser vacío.");
         this.nombre = nombre;
         this.email = email;
-        this.titular = titular;
+        this.cargo = cargo;
     }
 
     public String getNombre() { return nombre; }
     public String getEmail()  { return email; }
-    public String getTitular() { return titular; }
+    public String getCargo()  { return cargo; }
 
-    public void setNombre(String nombre)   { this.nombre = nombre; }
-    public void setEmail(String email)     { this.email = email; }
-    public void setTitular(String titular) { this.titular = titular; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setEmail(String email)   { this.email = email; }
+    public void setCargo(String cargo)   { this.cargo = cargo; }
 
     @Override
     public String toString() {
-        return nombre + " | " + titular + " | " + email;
+        return nombre + " | " + cargo + " | " + email;
     }
 }
