@@ -148,5 +148,35 @@ public class Main {
         System.out.println();
         gestor.procesarSiguiente(); // u3
         gestor.procesarSiguiente(); // cola vacía
+
+        System.out.println();
+        System.out.println("=== Módulo de historial de perfil (LIFO) ===");
+
+        Usuario ana = new Usuario("u1", new Perfil("Ana García", "ana@mail.com", "Desarrolladora Backend"));
+        System.out.println("Perfil inicial:     " + ana.getPerfil());
+
+        // Primer cambio
+        ana.actualizarPerfil(new Perfil("Ana García", "ana@mail.com", "Tech Lead"));
+        System.out.println("Tras 1er cambio:    " + ana.getPerfil());
+
+        // Segundo cambio
+        ana.actualizarPerfil(new Perfil("Ana García", "ana.garcia@empresa.com", "CTO"));
+        System.out.println("Tras 2do cambio:    " + ana.getPerfil());
+        System.out.println("Cambios apilados:   " + ana.cantidadCambios());
+
+        System.out.println();
+
+        // Deshacer segundo cambio
+        boolean deshizo = ana.deshacerCambio();
+        System.out.println("Deshacer exitoso:   " + deshizo);
+        System.out.println("Perfil restaurado:  " + ana.getPerfil());
+
+        // Deshacer primer cambio
+        ana.deshacerCambio();
+        System.out.println("Perfil restaurado:  " + ana.getPerfil());
+
+        // Intentar deshacer sin historial
+        boolean sinHistorial = ana.deshacerCambio();
+        System.out.println("Deshacer sin historial: " + sinHistorial + " (no hay más cambios)");
     }
 }
