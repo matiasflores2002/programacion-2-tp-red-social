@@ -166,5 +166,5 @@ Tecnología
 
 - Los TDAs (`Cola`, `Pila`, `Grafo`) son genéricos o parametrizados para ser reutilizables y no depender del dominio.
 - La `Pila` del historial vive dentro de `Usuario` porque el historial es parte del estado del usuario, no de un servicio externo.
-- `BuscadorRutas` y `Recomendador` son servicios separados que reciben el `Grafo` por constructor (inyección simple), facilitando su uso independiente.
+- `BuscadorRutas` recibe el `Grafo` por constructor y está integrado dentro de `RedSocial`; no se instancia directamente desde `Main`. `Recomendador` también recibe el `Grafo` por constructor y se usa de forma independiente a través de `RedSocial.getGrafo()`.
 - No se usaron frameworks externos; todas las estructuras se implementaron usando las colecciones estándar de Java (`LinkedList`, `HashMap`, `HashSet`, `ArrayList`) como soporte interno.

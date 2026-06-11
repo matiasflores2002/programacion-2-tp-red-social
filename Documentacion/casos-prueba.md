@@ -61,7 +61,7 @@
 |---|---|---|---|
 | 5.1 | Encolar una postulación | `encolar(p1)` | `cantidadPendientes() == 1` |
 | 5.2 | Encolar varias y procesar | Encolar p1, p2, p3; procesar | Se procesa p1 primero (orden de llegada) |
-| 5.3 | Procesar cola vacía | `procesarSiguiente()` sin postulaciones | Devuelve `null` y muestra mensaje |
+| 5.3 | Procesar cola vacía | `procesarSiguiente()` sin postulaciones | Devuelve `null` |
 | 5.4 | Mostrar pendientes | Encolar 3; mostrar | Se listan las 3 en orden de llegada |
 | 5.5 | Encolar postulación nula | `encolar(null)` | Lanza `IllegalArgumentException` |
 | 5.6 | Postulación con puesto vacío | `new Postulacion("u1", "")` | Lanza `IllegalArgumentException` |
